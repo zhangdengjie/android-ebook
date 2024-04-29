@@ -4,6 +4,7 @@ import com.ebook.api.http.CustomHttpLoggingInterceptor;
 import com.ebook.api.http.SSLSocketClient;
 import com.ebook.basebook.cache.converter.EncodeConverter;
 
+import java.net.Proxy;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +43,7 @@ public class MBaseModelImpl {
                 return new X509Certificate[0];
             }
         });
+        clientBuilder.proxy(Proxy.NO_PROXY);
         clientBuilder.hostnameVerifier(SSLSocketClient.getHostnameVerifier());
         clientBuilder.addInterceptor(new EncodingInterceptor("UTF-8"));
         clientBuilder.addInterceptor(new CustomHttpLoggingInterceptor());
