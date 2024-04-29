@@ -1,4 +1,4 @@
-package com.senseu.baby.utils.platform;
+package com.ebook.common.util;
 
 import android.app.Activity;
 import android.app.Application;

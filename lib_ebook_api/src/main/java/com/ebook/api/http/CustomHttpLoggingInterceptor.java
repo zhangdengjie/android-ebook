@@ -33,7 +33,7 @@ import okio.BufferedSource;
 /**
  * http请求拦截以日志详情，方便开发中调试
  */
-public final class HttpLoggingInterceptor implements Interceptor {
+public final class CustomHttpLoggingInterceptor implements Interceptor {
 
     public static final String TAG = "HttpLoggingInterceptor";
 

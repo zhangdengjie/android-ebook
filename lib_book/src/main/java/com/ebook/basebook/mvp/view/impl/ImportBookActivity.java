@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -106,9 +107,10 @@ public class ImportBookActivity extends BaseActivity<IImportBookPresenter> imple
      * 所有需要的权限
      */
     public List<String> allNeedPermissions() {
+        Log.i(TAG, "allNeedPermissions: 判断权限");
         List<String> permissions = new ArrayList<>();
-        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+//        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//        permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         permissions.add(PermissionX.permission.POST_NOTIFICATIONS);
         return permissions;
     }

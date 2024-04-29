@@ -1,10 +1,16 @@
-package com.senseu.net;
+package com.ebook.api.http;
 
-import android.text.TextUtils;
+import android.util.Log;
 
-import javax.net.ssl.*;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * <p>
@@ -12,10 +18,14 @@ import java.security.cert.X509Certificate;
  */
 
 public class SSLSocketClient {
+
+    private static final String TAG = "SSLSocketClient";
+
     //获取这个SSLSocketFactory
     public static SSLSocketFactory getSSLSocketFactory() {
         try {
-            SSLContext sslContext = SSLContext.getInstance("SSL");
+//            SSLContext sslContext = SSLContext.getInstance("SSL");
+            SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, getTrustManager(), new SecureRandom());
             return sslContext.getSocketFactory();
         } catch (Exception e) {
@@ -54,6 +64,7 @@ public class SSLSocketClient {
 //                    return false;
 //                }
 //                return hostname.contains("sense-u.com");
+                Log.i(TAG, "verify: " + hostname);
                 return true;
             }
         };

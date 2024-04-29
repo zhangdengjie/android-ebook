@@ -6,6 +6,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.ebook.api.config.API;
+import com.ebook.api.service.BookService;
 import com.ebook.api.service.CommentService;
 import com.ebook.api.service.UserService;
 
@@ -62,5 +63,9 @@ public class RetrofitManager {
 
     public CommentService getCommentService() {
         return mRetrofit.create(CommentService.class);
+    }
+
+    public BookService getBookService() {
+        return mRetrofit.create(BookService.class);
     }
 }

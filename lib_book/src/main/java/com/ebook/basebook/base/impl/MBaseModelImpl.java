@@ -1,8 +1,14 @@
 package com.ebook.basebook.base.impl;
 
+import com.ebook.api.http.CustomHttpLoggingInterceptor;
+import com.ebook.api.http.SSLSocketClient;
 import com.ebook.basebook.cache.converter.EncodeConverter;
 
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -17,10 +23,28 @@ public class MBaseModelImpl {
             .readTimeout(10, TimeUnit.SECONDS);
 
     public MBaseModelImpl() {
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+//        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+//        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 //        clientBuilder.interceptors().add(logging);
+        clientBuilder.sslSocketFactory(SSLSocketClient.getSSLSocketFactory(), new X509TrustManager() {
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+
+            }
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[0];
+            }
+        });
+        clientBuilder.hostnameVerifier(SSLSocketClient.getHostnameVerifier());
         clientBuilder.addInterceptor(new EncodingInterceptor("UTF-8"));
+        clientBuilder.addInterceptor(new CustomHttpLoggingInterceptor());
     }
 
     protected Retrofit getRetrofitObject(String url) {

@@ -1,5 +1,6 @@
 package com.ebook.db.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,7 +9,7 @@ import java.util.List;
 public class LibraryKindBookList {
     private String kindName;
     private String kindUrl;
-    private List<SearchBook> books;
+    private List<SearchBook> books = new ArrayList<>();
 
     public String getKindName() {
         return kindName;
