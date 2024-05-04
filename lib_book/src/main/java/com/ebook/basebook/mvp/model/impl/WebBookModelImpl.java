@@ -28,7 +28,7 @@ public class WebBookModelImpl implements WebBookModel {
                 if (bookModel == null) {
                     //更换书源只需要修改这一行
 //                    bookModel = new WebBookModelImpl(ZeroBookModelImpl.getInstance());
-                    bookModel = new WebBookModelImpl(MyBookModelImpl.getInstance());
+                    bookModel = new WebBookModelImpl(AwaBookModelImpl.getInstance());
                 }
             }
         }

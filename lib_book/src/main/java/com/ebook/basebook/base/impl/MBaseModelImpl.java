@@ -45,7 +45,8 @@ public class MBaseModelImpl {
         });
         clientBuilder.proxy(Proxy.NO_PROXY);
         clientBuilder.hostnameVerifier(SSLSocketClient.getHostnameVerifier());
-        clientBuilder.addInterceptor(new EncodingInterceptor("UTF-8"));
+//        clientBuilder.addInterceptor(new EncodingInterceptor("UTF-8"));
+        clientBuilder.addInterceptor(new EncodingInterceptor("GB2312"));
         clientBuilder.addInterceptor(new CustomHttpLoggingInterceptor());
     }
 
