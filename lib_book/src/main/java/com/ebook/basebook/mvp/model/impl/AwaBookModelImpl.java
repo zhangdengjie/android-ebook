@@ -1,12 +1,18 @@
 package com.ebook.basebook.mvp.model.impl;
 
+import static com.github.promeg.pinyinhelper.Pinyin.toPinyin;
+
+import android.util.Log;
+
 import com.ebook.api.service.AwaBookService;
 import com.ebook.api.service.ZeroBookService;
 import com.ebook.basebook.base.impl.MBaseModelImpl;
 import com.ebook.basebook.cache.ACache;
 import com.ebook.basebook.mvp.model.StationBookModel;
 import com.ebook.db.entity.BookContent;
+import com.ebook.db.entity.BookInfo;
 import com.ebook.db.entity.BookShelf;
+import com.ebook.db.entity.ChapterList;
 import com.ebook.db.entity.Library;
 import com.ebook.db.entity.LibraryKindBookList;
 import com.ebook.db.entity.LibraryNewBook;
@@ -28,7 +34,9 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel {
 
@@ -49,12 +57,84 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
     @Override
     public Observable<BookShelf> getBookInfo(BookShelf bookShelf) {
         // 根据book的链接,访问对应的网页,然后解析html
-        return null;
+        return getRetrofitObject(AwaBookService.URL)
+                .create(AwaBookService.class)
+                .getBookInfo(bookShelf.getNoteUrl().replace(AwaBookService.URL, ""))
+                .flatMap((Function<String, ObservableSource<BookShelf>>) s -> analyzeBookInfo(s, bookShelf));
+    }
+
+    private Observable<BookShelf> analyzeBookInfo(String s, BookShelf bookShelf) {
+        return Observable.create(e -> {
+            bookShelf.setTag(AwaBookService.URL);
+            bookShelf.setBookInfo(analyzeBookInfo(s, bookShelf.getNoteUrl()));
+            e.onNext(bookShelf);
+            e.onComplete();
+        });
+    }
+
+    private BookInfo analyzeBookInfo(String s, String novelUrl) {
+        // 解析bookInfo
+        BookInfo bookInfo = new BookInfo();
+        bookInfo.setNoteUrl(novelUrl);   //id
+        bookInfo.setTag(AwaBookService.URL);
+        // 解析html
+        Document doc = Jsoup.parse(s);
+        bookInfo.setCoverUrl(doc.getElementsByClass("book_info").get(0).getElementsByClass("pic").get(0).child(0).attr("src"));
+        bookInfo.setName(doc.getElementsByClass("book_info_box").get(0).getElementsByClass("book_r_box").get(0).child(0).child(0).text());
+        bookInfo.setAuthor(doc.getElementsByClass("book_info_box").get(0).getElementsByClass("book_r_box").get(0).child(0).child(1).child(0).text());
+        bookInfo.setIntroduce(doc.getElementById("jianjie").child(0).wholeText());
+        if (bookInfo.getIntroduce().equals("\u3000\u3000")) {
+            bookInfo.setIntroduce("暂无简介");
+        }
+
+        // 解析章节信息
+        bookInfo.setChapterUrl(novelUrl);
+        bookInfo.setOrigin(TAG);
+        return bookInfo;
     }
 
     @Override
     public Observable<WebChapter<BookShelf>> getChapterList(BookShelf bookShelf) {
-        return null;
+        return getRetrofitObject(AwaBookService.URL)
+                .create(AwaBookService.class)
+                .getChapterList(bookShelf.getBookInfo().getChapterUrl().replace(AwaBookService.URL, ""))
+                .flatMap((Function<String, ObservableSource<WebChapter<BookShelf>>>) s -> analyzeChapterList(s, bookShelf))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    private Observable<WebChapter<BookShelf>> analyzeChapterList(final String s, final BookShelf bookShelf) {
+        return Observable.create(e -> {
+            bookShelf.setTag(AwaBookService.URL);
+            WebChapter<List<ChapterList>> temp = analyzeChapterList(s, bookShelf.getNoteUrl());
+            bookShelf.getBookInfo().setChapterlist(temp.getData());
+            e.onNext(new WebChapter<>(bookShelf, temp.getNext()));
+            e.onComplete();
+        });
+    }
+
+    /**
+     * 解析章节信息
+     * @param s
+     * @param novelUrl
+     * @return
+     */
+    private WebChapter<List<ChapterList>> analyzeChapterList(String s, String novelUrl) {
+
+        Document doc = Jsoup.parse(s);
+        Elements chapterList = doc.getElementsByClass("list").get(0).getElementsByTag("li");
+        List<ChapterList> chapters = new ArrayList<>();
+        for (int i = 0; i < chapterList.size(); i++) {
+            ChapterList temp = new ChapterList();
+            temp.setDurChapterUrl(AwaBookService.URL + chapterList.get(i).getElementsByTag("a").attr("href"));   //id
+            Log.d(TAG, "analyzeChapterList: " + temp.getDurChapterUrl());
+            temp.setDurChapterIndex(i);
+            temp.setDurChapterName(chapterList.get(i).getElementsByTag("a").text());
+            temp.setNoteUrl(novelUrl);
+            temp.setTag(AwaBookService.URL);
+            chapters.add(temp);
+        }
+        return new WebChapter<>(chapters, false);
     }
 
     @Override
