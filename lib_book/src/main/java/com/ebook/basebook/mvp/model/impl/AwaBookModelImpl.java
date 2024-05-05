@@ -5,8 +5,8 @@ import static com.github.promeg.pinyinhelper.Pinyin.toPinyin;
 import android.util.Log;
 
 import com.ebook.api.service.AwaBookService;
-import com.ebook.api.service.ZeroBookService;
 import com.ebook.basebook.base.impl.MBaseModelImpl;
+import com.ebook.basebook.base.manager.ErrorAnalyContentManager;
 import com.ebook.basebook.cache.ACache;
 import com.ebook.basebook.mvp.model.StationBookModel;
 import com.ebook.db.entity.BookContent;
@@ -22,6 +22,7 @@ import com.ebook.db.entity.WebChapter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
@@ -139,7 +140,50 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
 
     @Override
     public Observable<BookContent> getBookContent(String durChapterUrl, int durChapterIndex) {
-        return null;
+        return getRetrofitObject(AwaBookService.URL)
+                .create(AwaBookService.class)
+                .getBookContent(durChapterUrl.replace(AwaBookService.URL, ""))
+                .flatMap((Function<String, ObservableSource<BookContent>>) s -> analyzeBookContent(s, durChapterUrl, durChapterIndex));
+    }
+
+    /**
+     * 解析章节内容
+     * @param s
+     * @param durChapterUrl
+     * @param durChapterIndex
+     * @return
+     */
+    private Observable<BookContent> analyzeBookContent(final String s, final String durChapterUrl, final int durChapterIndex) {
+        return Observable.create(e -> {
+            BookContent bookContent = new BookContent();
+            bookContent.setDurChapterIndex(durChapterIndex);
+            bookContent.setDurChapterUrl(durChapterUrl);
+            bookContent.setTag(AwaBookService.URL);
+            try {
+                Document doc = Jsoup.parse(s);
+                List<TextNode> contentEs = doc.getElementById("article").textNodes();
+                StringBuilder content = new StringBuilder();
+                for (int i = 0; i < contentEs.size(); i++) {
+                    String temp = contentEs.get(i).text().trim();
+                    temp = temp.replaceAll(" ", "").replaceAll(" ", "").replaceAll("\\s*", "");
+                    if (temp.length() > 0) {
+                        content.append("\u3000\u3000").append(temp);
+                        if (i < contentEs.size() - 1) {
+                            content.append("\r\n");
+                        }
+                    }
+                }
+                bookContent.setDurCapterContent(content.toString());
+                bookContent.setRight(true);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                ErrorAnalyContentManager.getInstance().writeNewErrorUrl(durChapterUrl);
+                bookContent.setDurCapterContent(durChapterUrl.substring(0, durChapterUrl.indexOf('/', 8)) + "站点暂时不支持解析");
+                bookContent.setRight(false);
+            }
+            e.onNext(bookContent);
+            e.onComplete();
+        });
     }
 
     @Override
