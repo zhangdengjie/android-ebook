@@ -41,7 +41,7 @@ public class SSLContextUtil {
     /**
      * 信任管理器
      */
-    public static TrustManager trustManagers = new X509TrustManager() {
+    public static X509TrustManager trustManagers = new X509TrustManager() {
 
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType)
