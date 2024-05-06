@@ -7,7 +7,7 @@ plugins {
 android {
 
     defaultConfig {
-        applicationId 'com.ebook'
+        applicationId 'com.xixi.book'
         minSdk 26
         targetSdk 34
         compileSdk 34

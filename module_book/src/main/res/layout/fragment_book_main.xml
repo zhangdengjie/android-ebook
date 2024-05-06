@@ -77,11 +77,24 @@
                 app:onLoadMoreCommand="@{viewModel.onLoadMoreCommand}"
                 app:onRefreshCommand="@{viewModel.onRefreshCommand}">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recview"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:linearLayoutManager="@{viewModel.orientation}" />
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/tvNoData"
+                        android:text="暂无数据"
+                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recview"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:linearLayoutManager="@{viewModel.orientation}" />
+                </FrameLayout>
+
+
             </com.refresh.lib.DaisyRefreshLayout>
         </LinearLayout>
     </LinearLayout>

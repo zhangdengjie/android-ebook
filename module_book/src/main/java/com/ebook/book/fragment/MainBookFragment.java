@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
+import androidx.databinding.ObservableList;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.ebook.basebook.base.manager.BitIntentDataManager;
@@ -77,7 +78,51 @@ public class MainBookFragment extends BaseMvvmRefreshFragment<FragmentBookMainBi
         ibDownload = view.findViewById(R.id.ib_download);
         mBookListAdatper = new BookListAdapter(mActivity, mViewModel.getList());
         mViewModel.getList().addOnListChangedCallback(ObservableListUtil.getListChangedCallback(mBookListAdatper));
+        mViewModel.getList().addOnListChangedCallback(new ObservableList.OnListChangedCallback() {
+            @Override
+            public void onChanged(ObservableList sender) {
+                mBookListAdatper.notifyDataSetChanged();
+                showEmpty();
+            }
+
+            @Override
+            public void onItemRangeChanged(ObservableList sender, int positionStart, int itemCount) {
+                mBookListAdatper.notifyItemRangeChanged(positionStart, itemCount);
+            }
+
+            @Override
+            public void onItemRangeInserted(ObservableList sender, int positionStart, int itemCount) {
+                mBookListAdatper.notifyItemRangeInserted(positionStart, itemCount);
+                showEmpty();
+            }
+
+            @Override
+            public void onItemRangeMoved(ObservableList sender, int fromPosition, int toPosition, int itemCount) {
+                if (itemCount == 1) {
+                    mBookListAdatper.notifyItemMoved(fromPosition, toPosition);
+                } else {
+                    mBookListAdatper.notifyDataSetChanged();
+                }
+                showEmpty();
+            }
+
+            @Override
+            public void onItemRangeRemoved(ObservableList sender, int positionStart, int itemCount) {
+                mBookListAdatper.notifyItemRangeRemoved(positionStart, itemCount);
+                showEmpty();
+            }
+        });
         mBinding.recview.setAdapter(mBookListAdatper);
+    }
+
+    private void showEmpty() {
+        if (mBookListAdatper.getItemCount() == 0) {
+            mBinding.recview.setVisibility(View.GONE);
+            mBinding.tvNoData.setVisibility(View.VISIBLE);
+        } else {
+            mBinding.recview.setVisibility(View.VISIBLE);
+            mBinding.tvNoData.setVisibility(View.GONE);
+        }
     }
 
     @Override
