@@ -35,6 +35,7 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -57,7 +58,7 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
 
     @Override
     public Observable<BookShelf> getBookInfo(BookShelf bookShelf) {
-        // 根据book的链接,访问对应的网页,然后解析html
+        // 根据book详情的链接,访问对应的网页,然后解析html
         return getRetrofitObject(AwaBookService.URL)
                 .create(AwaBookService.class)
                 .getBookInfo(bookShelf.getNoteUrl().replace(AwaBookService.URL, ""))
@@ -77,7 +78,7 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
         // 解析bookInfo
         BookInfo bookInfo = new BookInfo();
         bookInfo.setNoteUrl(novelUrl);   //id
-        bookInfo.setTag(AwaBookService.URL);
+        bookInfo.setTag(TAG);
         // 解析html
         Document doc = Jsoup.parse(s);
         bookInfo.setCoverUrl(doc.getElementsByClass("book_info").get(0).getElementsByClass("pic").get(0).child(0).attr("src"));
@@ -87,40 +88,71 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
         if (bookInfo.getIntroduce().equals("\u3000\u3000")) {
             bookInfo.setIntroduce("暂无简介");
         }
-
         // 解析章节信息
-        bookInfo.setChapterUrl(novelUrl);
-        bookInfo.setOrigin(TAG);
+        bookInfo.setChapterUrl(doc.getElementsByClass("book_action").get(0).child(0).attr("href").substring(2));
+        bookInfo.setOrigin(AwaBookService.URL);
         return bookInfo;
     }
 
     @Override
     public Observable<WebChapter<BookShelf>> getChapterList(BookShelf bookShelf) {
+        // 先获取第一页,然后拿到总共的页数,并发请求
         return getRetrofitObject(AwaBookService.URL)
                 .create(AwaBookService.class)
                 .getChapterList(bookShelf.getBookInfo().getChapterUrl().replace(AwaBookService.URL, ""))
-                .flatMap((Function<String, ObservableSource<WebChapter<BookShelf>>>) s -> analyzeChapterList(s, bookShelf))
+                .flatMap(new Function<String, ObservableSource<BookShelf>>() {
+                    @Override
+                    public ObservableSource<BookShelf> apply(String s) throws Exception {
+                        return analyzeChapterCount(s,bookShelf);
+                    }
+                })
+                .flatMap(new Function<BookShelf, ObservableSource<BookShelf>>() {
+                    @Override
+                    public ObservableSource<BookShelf> apply(BookShelf bookShelf) throws Exception {
+                        List<Observable<List<ChapterList>>> os = new ArrayList<>();
+                        for (int i = 0; i <= bookShelf.getPageCount(); i++) {
+                            os.add(getChapterList(i, bookShelf));
+                        }
+                        return Observable.zipIterable(os, new Function<Object[], BookShelf>() {
+                            @Override
+                            public BookShelf apply(Object[] objects) throws Exception {
+                                for (Object object : objects) {
+                                    bookShelf.getBookInfo().getChapterlist().addAll(((List<ChapterList>) object));
+                                }
+                                return bookShelf;
+                            }
+                        }, false, 10);
+                    }
+                })
+                .flatMap((Function<BookShelf, ObservableSource<WebChapter<BookShelf>>>) s -> analyzeChapterListForObject(s))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private Observable<WebChapter<BookShelf>> analyzeChapterList(final String s, final BookShelf bookShelf) {
-        return Observable.create(e -> {
-            bookShelf.setTag(AwaBookService.URL);
-            WebChapter<List<ChapterList>> temp = analyzeChapterList(s, bookShelf.getNoteUrl());
-            bookShelf.getBookInfo().setChapterlist(temp.getData());
-            e.onNext(new WebChapter<>(bookShelf, temp.getNext()));
-            e.onComplete();
-        });
+    private Observable<List<ChapterList>> getChapterList(int pageIndex,BookShelf bookShelf) {
+        return getRetrofitObject(AwaBookService.URL)
+                .create(AwaBookService.class)
+                .getChapterList(bookShelf.getBookInfo().getChapterUrl().replace(AwaBookService.URL, "") + pageIndex)
+                .flatMap(new Function<String, ObservableSource<List<ChapterList>>>() {
+                    @Override
+                    public ObservableSource<List<ChapterList>> apply(String s) throws Exception {
+                        return new Observable<List<ChapterList>>() {
+                            @Override
+                            protected void subscribeActual(Observer<? super List<ChapterList>> observer) {
+                                observer.onNext(analyzeChapterList(s,bookShelf));
+                                observer.onComplete();
+                            }
+                        };
+                    }
+                });
     }
 
     /**
-     * 解析章节信息
-     * @param s
-     * @param novelUrl
+     * @param s 每个page的章节目录的html
+     * @param bookShelf
      * @return
      */
-    private WebChapter<List<ChapterList>> analyzeChapterList(String s, String novelUrl) {
+    private List<ChapterList> analyzeChapterList(String s,BookShelf bookShelf) {
 
         Document doc = Jsoup.parse(s);
         Elements chapterList = doc.getElementsByClass("list").get(0).getElementsByTag("li");
@@ -131,11 +163,30 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
             Log.d(TAG, "analyzeChapterList: " + temp.getDurChapterUrl());
             temp.setDurChapterIndex(i);
             temp.setDurChapterName(chapterList.get(i).getElementsByTag("a").text());
-            temp.setNoteUrl(novelUrl);
+            temp.setNoteUrl(bookShelf.getNoteUrl());
             temp.setTag(AwaBookService.URL);
             chapters.add(temp);
         }
-        return new WebChapter<>(chapters, false);
+        return chapters;
+    }
+
+    private Observable<BookShelf> analyzeChapterCount(final String s, final BookShelf bookShelf) {
+        return Observable.create(e -> {
+            Document doc = Jsoup.parse(s);
+            bookShelf.setPageCount(Integer.parseInt(doc.getElementsByClass("pageRemark").get(0).child(0).text()));
+            e.onNext(bookShelf);
+            e.onComplete();
+        });
+    }
+
+    private Observable<WebChapter<BookShelf>> analyzeChapterListForObject(final BookShelf bookShelf) {
+        return Observable.create(e -> {
+            bookShelf.setTag(AwaBookService.URL);
+            WebChapter<List<ChapterList>> temp = new WebChapter<>(bookShelf.getBookInfo().getChapterlist(),false);
+            bookShelf.getBookInfo().setChapterlist(temp.getData());
+            e.onNext(new WebChapter<>(bookShelf, temp.getNext()));
+            e.onComplete();
+        });
     }
 
     @Override
@@ -191,6 +242,11 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
         return null;
     }
 
+    /**
+     * 获取书城书籍列表
+     * @param aCache
+     * @return
+     */
     @Override
     public Observable<Library> getLibraryData(ACache aCache) {
         return getRetrofitObject(AwaBookService.URL).create(AwaBookService.class).getLibraryData("").flatMap((Function<String, ObservableSource<Library>>) s -> {

@@ -52,3 +52,7 @@ dependencies {
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 }
+
+greendao{
+    schemaVersion 4
+}

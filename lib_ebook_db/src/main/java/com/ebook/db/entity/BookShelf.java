@@ -40,6 +40,14 @@ public class BookShelf implements Parcelable, Cloneable {
     private int durChapterPage = DBCode.BookContentView.DURPAGEINDEXBEGIN;
     private long finalDate;  //最后阅读时间
     private String tag;
+    /**
+     * 章节url根地址
+     */
+    private String chapterUrl;
+    /**
+     * 网页上总共的页数
+     */
+    private int pageCount;
     @Transient
     private BookInfo bookInfo = new BookInfo();
 
@@ -49,17 +57,21 @@ public class BookShelf implements Parcelable, Cloneable {
         durChapterPage = in.readInt();
         finalDate = in.readLong();
         tag = in.readString();
+        chapterUrl = in.readString();
+        pageCount = in.readInt();
         bookInfo = in.readParcelable(BookInfo.class.getClassLoader());
     }
 
-    @Generated(hash = 1195003589)
+    @Generated(hash = 382077098)
     public BookShelf(String noteUrl, int durChapter, int durChapterPage,
-                     long finalDate, String tag) {
+            long finalDate, String tag, String chapterUrl, int pageCount) {
         this.noteUrl = noteUrl;
         this.durChapter = durChapter;
         this.durChapterPage = durChapterPage;
         this.finalDate = finalDate;
         this.tag = tag;
+        this.chapterUrl = chapterUrl;
+        this.pageCount = pageCount;
     }
 
     @Generated(hash = 547688644)
@@ -82,6 +94,8 @@ public class BookShelf implements Parcelable, Cloneable {
         dest.writeInt(durChapterPage);
         dest.writeLong(finalDate);
         dest.writeString(tag);
+        dest.writeString(chapterUrl);
+        dest.writeInt(pageCount);
         dest.writeParcelable(bookInfo, flags);
     }
 
@@ -141,5 +155,21 @@ public class BookShelf implements Parcelable, Cloneable {
         bookShelf.tag = tag;
         bookShelf.bookInfo = (BookInfo) bookInfo.clone();
         return bookShelf;
+    }
+
+    public String getChapterUrl() {
+        return this.chapterUrl;
+    }
+
+    public void setChapterUrl(String chapterUrl) {
+        this.chapterUrl = chapterUrl;
+    }
+
+    public int getPageCount() {
+        return pageCount;
+    }
+
+    public void setPageCount(int pageCount) {
+        this.pageCount = pageCount;
     }
 }
