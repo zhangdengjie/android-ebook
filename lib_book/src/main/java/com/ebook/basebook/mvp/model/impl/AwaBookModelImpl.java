@@ -5,6 +5,7 @@ import static com.github.promeg.pinyinhelper.Pinyin.toPinyin;
 import android.util.Log;
 
 import com.ebook.api.service.AwaBookService;
+import com.ebook.api.service.ZeroBookService;
 import com.ebook.basebook.base.impl.MBaseModelImpl;
 import com.ebook.basebook.base.manager.ErrorAnalyContentManager;
 import com.ebook.basebook.cache.ACache;
@@ -278,9 +279,47 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
         });
     }
 
+    /**
+     * 按分类搜索书籍
+     * @param url
+     * @param page
+     * @return
+     */
     @Override
     public Observable<List<SearchBook>> getKindBook(String url, int page) {
-        return null;
+        return getRetrofitObject(AwaBookService.URL)
+                .create(AwaBookService.class)
+                .getKindBooks(url + page)
+                .flatMap((Function<String, ObservableSource<List<SearchBook>>>) this::analyzeKindBook);
+    }
+
+    private Observable<List<SearchBook>> analyzeKindBook(String s) {
+        return Observable.create(e -> {
+            Document doc = Jsoup.parse(s);
+            // 解析分类书籍列表
+            Elements kindBookEs = doc.getElementsByClass("book_info2");
+            List<SearchBook> books = new ArrayList<>();
+            for (int i = 0; i < kindBookEs.size(); i++) {
+                SearchBook book = new SearchBook();
+                book.setTag(TAG);
+                book.setCoverUrl(kindBookEs.get(i).child(0).child(0).child(0).attr("src").replaceAll("\\.\\.",""));
+                book.setNoteUrl(kindBookEs.get(i).child(1).child(1).child(0).attr("href"));
+                book.setAuthor(kindBookEs.get(i).child(1).child(1).child(1).child(1).text());
+                book.setDesc(kindBookEs.get(i).child(1).child(1).child(2).text());
+                book.setOrigin(AwaBookService.URL);
+                book.setName(kindBookEs.get(i).child(1).child(1).child(0).child(0).text());
+
+//                item.setAuthor(kindBookEs.get(i).getElementsByClass("s4").text());
+//                item.setLastChapter(kindBookEs.get(i).getElementsByTag("a").get(1).text());
+//                item.setOrigin(TAG);
+//                item.setName(kindBookEs.get(i).getElementsByTag("a").get(0).text());
+//                item.setNoteUrl(kindBookEs.get(i).getElementsByTag("a").get(0).attr("href"));
+//                item.setCoverUrl(ZeroBookService.COVER_URL + "/" + toPinyin(item.getName(), "").toLowerCase() + ".jpg");
+                books.add(book);
+            }
+            e.onNext(books);
+            e.onComplete();
+        });
     }
 
     /**
@@ -305,10 +344,10 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
             public void subscribe(ObservableEmitter<Library> emitter) throws Exception {
                 Library result = new Library();
                 Document doc = Jsoup.parse(data);
-
+                // TODO: 2024/5/7 zhangdengjie 解析分类 (名称,url)
                 List<LibraryKindBookList> kindBooks = new ArrayList<>();
                 result.setKindBooks(kindBooks);
-                // 解析bodybox 分类
+                // 解析bodybox 分类列表
                 Elements modules = doc
                         .getElementsByAttributeValue("class", "bodybox").get(0).getElementsByAttributeValue("class","module");
                 for (Element element : modules) {

@@ -138,4 +138,17 @@ public class LibraryModel extends BaseModel {
         return bookTypeList;
     }
 
+    //获取书籍类型信息，此处用本地数据。
+    public List<BookType> getBookTypeListAwa() {
+        List<BookType> bookTypeList = new ArrayList<>();
+        bookTypeList.add(new BookType("玄幻奇幻", "/wapsort1/"));
+        bookTypeList.add(new BookType("武侠仙侠", "/wapsort2/"));
+        bookTypeList.add(new BookType("都市言情", "/wapsort3/"));
+        bookTypeList.add(new BookType("历史军事", "/wapsort4/"));
+        bookTypeList.add(new BookType("科幻灵异", "/wapsort5/"));
+        bookTypeList.add(new BookType("网游竞技", "/wapsort6/"));
+        bookTypeList.add(new BookType("女生频道", "/wapfull/"));
+        return bookTypeList;
+    }
+
 }

@@ -92,7 +92,8 @@ public class LibraryViewModel extends BaseRefreshViewModel<Library, LibraryModel
     }
 
     public ObservableArrayList<BookType> getBookTypeList() {
-        bookTypes.addAll(mModel.getBookTypeList());
+//        bookTypes.addAll(mModel.getBookTypeList());
+        bookTypes.addAll(mModel.getBookTypeListAwa());
         return bookTypes;
     }
 
