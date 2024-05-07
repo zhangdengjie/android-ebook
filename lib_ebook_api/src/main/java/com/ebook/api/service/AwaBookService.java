@@ -31,14 +31,16 @@ public interface AwaBookService {
             "Cache-Control:no-cache"})
     Observable<String> getBookInfo(@Url String url);
 
-    @GET("/search.aspx")
+    @GET("/application/search.php")
     @Headers({"Accept:text/html,application/xhtml+xml,application/xml",
             "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36 Edg/91.0.864.48",
             "Content-Type:application/x-www-form-urlencoded; charset=UTF-8",
-            "Accept-Charset:UTF-8",
+            "Accept-Charset:*",
+            "Content-Type:text/html; charset=UTF-8",
+            "Content-Type:text/html; charset=GB2312",
             "Connection:close",
             "Cache-Control:no-cache"})
-    Observable<String> searchBook(@Query(value = "key", encoded = true) String content, @Query("page") int page, @Query("siteid") String siteid);
+    Observable<String> searchBook(@Query(value = "words", encoded = true) String words);
 
     @GET
     @Headers({"Accept:text/html,application/xhtml+xml,application/xml",

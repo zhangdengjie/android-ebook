@@ -73,16 +73,17 @@
                             <TextView
                                 android:id="@+id/tv_author"
                                 android:layout_width="wrap_content"
-                                android:maxWidth="90dp"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:lines="1"
+                                tools:text="1234445439084"
                                 android:ellipsize="end"
                                 android:textColor="#aaaaaa"
                                 android:textSize="12sp" />
 
                             <TextView
                                 android:id="@+id/tv_origin"
+                                android:visibility="gone"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"

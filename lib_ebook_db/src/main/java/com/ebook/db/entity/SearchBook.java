@@ -154,7 +154,7 @@ public class SearchBook implements Parcelable {
     }
 
     public void setOrigin(String origin) {
-        this.origin = origin;
+//        this.origin = origin;
     }
 
     public String getDesc() {

@@ -4,6 +4,9 @@ import static com.github.promeg.pinyinhelper.Pinyin.toPinyin;
 
 import android.util.Log;
 
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import com.ebook.api.entity.BookEntity;
 import com.ebook.api.service.AwaBookService;
 import com.ebook.api.service.ZeroBookService;
 import com.ebook.basebook.base.impl.MBaseModelImpl;
@@ -29,6 +32,8 @@ import org.jsoup.select.Elements;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -344,7 +349,6 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
             public void subscribe(ObservableEmitter<Library> emitter) throws Exception {
                 Library result = new Library();
                 Document doc = Jsoup.parse(data);
-                // TODO: 2024/5/7 zhangdengjie 解析分类 (名称,url)
                 List<LibraryKindBookList> kindBooks = new ArrayList<>();
                 result.setKindBooks(kindBooks);
                 // 解析bodybox 分类列表
@@ -396,6 +400,38 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
 
     @Override
     public Observable<List<SearchBook>> searchBook(String content, int page) {
-        return null;
+        try {
+            String str = URLEncoder.encode(content, "GB2312");
+            return getRetrofitObject(AwaBookService.URL)
+                    .create(AwaBookService.class)
+                    .searchBook(str)
+                    .flatMap((Function<String, ObservableSource<List<SearchBook>>>) this::analyzeSearchBook);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Observable<List<SearchBook>> analyzeSearchBook(final String s) {
+        return Observable.create(e -> {
+            List<SearchBook> result = new ArrayList<>();
+            Document doc = Jsoup.parse(s);
+            Elements elements = doc.getElementsByClass("book_info");
+            for (Element bookInfo : elements) {
+                if (bookInfo.getElementsByClass("pic").isEmpty()) {
+                    continue;
+                }
+                SearchBook book = new SearchBook();
+                book.setTag(TAG);
+                book.setOrigin(AwaBookService.URL);
+                book.setCoverUrl(bookInfo.child(0).child(0).child(0).attr("src"));
+                book.setNoteUrl(bookInfo.child(1).child(0).attr("href"));
+                book.setName(bookInfo.child(1).child(0).child(0).child(0).html());
+                book.setAuthor(bookInfo.child(1).child(0).child(0).child(1).html());
+                book.setDesc(bookInfo.child(1).child(0).child(0).child(2).text());
+                result.add(book);
+            }
+            e.onNext(result);
+            e.onComplete();
+        });
     }
 }

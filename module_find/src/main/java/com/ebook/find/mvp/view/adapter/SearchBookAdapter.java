@@ -1,5 +1,6 @@
 package com.ebook.find.mvp.view.adapter;
 
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,8 +44,8 @@ public class SearchBookAdapter extends RefreshRecyclerViewAdapter {
                 .dontAnimate()
                 .placeholder(com.ebook.basebook.R.drawable.img_cover_default)
                 .into(((Viewholder) holder).ivCover);
-        ((Viewholder) holder).tvName.setText(searchBooks.get(position).getName());
-        ((Viewholder) holder).tvAuthor.setText(searchBooks.get(position).getAuthor());
+        ((Viewholder) holder).tvName.setText(Html.fromHtml(searchBooks.get(position).getName()));
+        ((Viewholder) holder).tvAuthor.setText(Html.fromHtml(searchBooks.get(position).getAuthor()));
         String state = searchBooks.get(position).getState();
         if (state == null || state.length() == 0) {
             ((Viewholder) holder).tvState.setVisibility(View.GONE);
