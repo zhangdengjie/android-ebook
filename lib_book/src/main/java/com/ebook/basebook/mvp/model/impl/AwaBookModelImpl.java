@@ -96,37 +96,78 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
 
     @Override
     public Observable<WebChapter<BookShelf>> getChapterList(BookShelf bookShelf) {
-        // 先获取第一页,然后拿到总共的页数,并发请求
+        String noteUrl = bookShelf.getNoteUrl();
+        String aid = noteUrl.split("_")[1];
+        String chapterListUrl = "http://www.ttawa.com/list.php?aid=" + aid.substring(0,aid.length() - 1);
         return getRetrofitObject(AwaBookService.URL)
                 .create(AwaBookService.class)
-                .getChapterList(bookShelf.getBookInfo().getChapterUrl().replace(AwaBookService.URL, ""))
+                .getChapterList(chapterListUrl.replace(AwaBookService.URL, ""))
                 .flatMap(new Function<String, ObservableSource<BookShelf>>() {
                     @Override
                     public ObservableSource<BookShelf> apply(String s) throws Exception {
-                        return analyzeChapterCount(s,bookShelf);
-                    }
-                })
-                .flatMap(new Function<BookShelf, ObservableSource<BookShelf>>() {
-                    @Override
-                    public ObservableSource<BookShelf> apply(BookShelf bookShelf) throws Exception {
-                        List<Observable<List<ChapterList>>> os = new ArrayList<>();
-                        for (int i = 0; i <= bookShelf.getPageCount(); i++) {
-                            os.add(getChapterList(i, bookShelf));
-                        }
-                        return Observable.zipIterable(os, new Function<Object[], BookShelf>() {
+                        return Observable.create(new ObservableOnSubscribe<BookShelf>() {
                             @Override
-                            public BookShelf apply(Object[] objects) throws Exception {
-                                for (Object object : objects) {
-                                    bookShelf.getBookInfo().getChapterlist().addAll(((List<ChapterList>) object));
-                                }
-                                return bookShelf;
+                            public void subscribe(ObservableEmitter<BookShelf> emitter) throws Exception {
+                                bookShelf.getBookInfo().getChapterlist().addAll(analyzeChapterListNew(s, bookShelf));
+                                emitter.onNext(bookShelf);
+                                emitter.onComplete();
                             }
-                        }, false, 10);
+                        });
                     }
-                })
-                .flatMap((Function<BookShelf, ObservableSource<WebChapter<BookShelf>>>) s -> analyzeChapterListForObject(s))
-                .subscribeOn(Schedulers.io())
+                }).flatMap(new Function<BookShelf, ObservableSource<WebChapter<BookShelf>>>() {
+                    @Override
+                    public ObservableSource<WebChapter<BookShelf>> apply(BookShelf bookShelfWebChapter) throws Exception {
+                        return analyzeChapterListForObject(bookShelfWebChapter);
+                    }
+                }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
+        // 先获取第一页,然后拿到总共的页数,并发请求
+//        return getRetrofitObject(AwaBookService.URL)
+//                .create(AwaBookService.class)
+//                .getChapterList(bookShelf.getBookInfo().getChapterUrl().replace(AwaBookService.URL, ""))
+//                .flatMap(new Function<String, ObservableSource<BookShelf>>() {
+//                    @Override
+//                    public ObservableSource<BookShelf> apply(String s) throws Exception {
+//                        return analyzeChapterCount(s,bookShelf);
+//                    }
+//                })
+//                .flatMap(new Function<BookShelf, ObservableSource<BookShelf>>() {
+//                    @Override
+//                    public ObservableSource<BookShelf> apply(BookShelf bookShelf) throws Exception {
+//                        List<Observable<List<ChapterList>>> os = new ArrayList<>();
+//                        for (int i = 0; i <= bookShelf.getPageCount(); i++) {
+//                            os.add(getChapterList(i, bookShelf));
+//                        }
+//                        return Observable.zipIterable(os, new Function<Object[], BookShelf>() {
+//                            @Override
+//                            public BookShelf apply(Object[] objects) throws Exception {
+//                                for (Object object : objects) {
+//                                    bookShelf.getBookInfo().getChapterlist().addAll(((List<ChapterList>) object));
+//                                }
+//                                return bookShelf;
+//                            }
+//                        }, false, 10);
+//                    }
+//                })
+//                .flatMap((Function<BookShelf, ObservableSource<WebChapter<BookShelf>>>) s -> analyzeChapterListForObject(s))
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread());
+    }
+    private List<ChapterList> analyzeChapterListNew(String s,BookShelf bookShelf) {
+        Document doc = Jsoup.parse(s);
+        Elements chapterList = doc.getElementsByTag("li");
+        List<ChapterList> chapters = new ArrayList<>();
+        for (int i = 1; i < chapterList.size(); i++) {
+            ChapterList temp = new ChapterList();
+            temp.setDurChapterUrl(AwaBookService.URL + chapterList.get(i).getElementsByTag("a").attr("href"));   //id
+            Log.d(TAG, "analyzeChapterList: " + temp.getDurChapterUrl());
+            temp.setDurChapterIndex(i);
+            temp.setDurChapterName(chapterList.get(i).getElementsByTag("a").text());
+            temp.setNoteUrl(bookShelf.getNoteUrl());
+            temp.setTag(AwaBookService.URL);
+            chapters.add(temp);
+        }
+        return chapters;
     }
 
     private Observable<List<ChapterList>> getChapterList(int pageIndex,BookShelf bookShelf) {
