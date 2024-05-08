@@ -193,6 +193,7 @@ public class DownloadUtil {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setDataAndType(apkPath, "application/vnd.android.package-archive");
         context.startActivity(intent);
     }
