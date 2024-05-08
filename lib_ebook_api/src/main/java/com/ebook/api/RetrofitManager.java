@@ -29,7 +29,7 @@ public class RetrofitManager {
 
     private RetrofitManager() {
         okHttpBuilder = new OkHttpClient.Builder();
-        okHttpBuilder.addInterceptor(new EncodingInterceptor("GB2312"));
+//        okHttpBuilder.addInterceptor(new EncodingInterceptor("GB2312"));
         okHttpBuilder.addInterceptor(new CustomHttpLoggingInterceptor());
         mRetrofit = new Retrofit.Builder()
                 .client(okHttpBuilder.build())
