@@ -1,12 +1,14 @@
 package com.ebook.main
 
 import android.annotation.SuppressLint
+import android.app.ProgressDialog
+import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MenuItem
-import android.view.View
-import android.view.View.OnClickListener
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.ebook.api.RetrofitManager
@@ -14,6 +16,8 @@ import com.ebook.common.mvvm.BaseActivity
 import com.ebook.common.provider.IBookProvider
 import com.ebook.common.provider.IFindProvider
 import com.ebook.common.provider.IMeProvider
+import com.ebook.common.util.DownloadUtil
+import com.ebook.common.util.DownloadUtil.OnDownloadCallback
 import com.ebook.common.util.ToastUtil
 import com.ebook.main.entity.MainChannel
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -23,8 +27,8 @@ import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import org.jetbrains.annotations.Async.Schedule
 import org.jsoup.Jsoup
+import java.io.File
 
 
 class MainActivity : BaseActivity() {
@@ -123,7 +127,9 @@ class MainActivity : BaseActivity() {
                 override fun onNext(t: String) {
                     // 解析html
                     val doc = Jsoup.parse(t)
-                    val version = doc.getElementsByTag("version")[0].text()
+                    val url = doc.getElementsByTag("url")[0].text()
+                    val name = url.substring(url.lastIndexOf("/"))
+                    val md5 = doc.getElementsByTag("md5")[0].text()
                     val info = doc.getElementsByTag("info")[0].text()
                     val d = AlertDialog.Builder(this@MainActivity)
                         .setTitle("APP有新版本")
@@ -136,8 +142,10 @@ class MainActivity : BaseActivity() {
                         .setPositiveButton("更新",object : DialogInterface.OnClickListener {
                             override fun onClick(dialog: DialogInterface?, which: Int) {
                                 Log.i(TAG, "onClick: 去下载新版本的包,并且安装")
+                                DownloadUtil(this@MainActivity, url, name, md5).startDownload()
                             }
                         })
+                        .setCancelable(false)
                         .create()
                     d.show()
                 }
