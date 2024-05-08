@@ -87,7 +87,7 @@ public class DownloadUtil {
             }
             //注册广播接收者，监听下载状态
             mContext.registerReceiver(receiver,
-                    new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+                    new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),Context.RECEIVER_EXPORTED);
 
         } catch (Exception e) {
             Log.e(TAG, "downloadAPK: 下载文件失败", e);

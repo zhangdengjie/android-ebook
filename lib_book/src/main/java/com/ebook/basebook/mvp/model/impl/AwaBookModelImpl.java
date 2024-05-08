@@ -362,8 +362,8 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
                     LibraryKindBookList bookList = new LibraryKindBookList();
                     kindBooks.add(bookList);
                     String kindName = element.getElementsByTag("h2").get(0).getElementsByTag("span").get(0).text();
-                    // TODO: 2024/5/4 解析有没有更多
-                    bookList.setKindUrl("");
+                    // TODO: 2024/5/4 解析有没有更多 通过kindUrl是否为空来判断是否显示
+//                    bookList.setKindUrl("");
                     bookList.setKindName(kindName);
                     // 添加第一部小说,包含封面作者简介等信息
                     SearchBook book = new SearchBook();
@@ -390,6 +390,9 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
                         b.setTag(TAG);
                         bookList.getBooks().add(b);
                     }
+
+                    // 只显示3个书籍
+                    bookList.setBooks(bookList.getBooks().subList(0, 3));
 
                 }
                 emitter.onNext(result);
