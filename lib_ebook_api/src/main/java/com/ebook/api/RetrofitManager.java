@@ -6,6 +6,8 @@ import android.app.Application;
 import android.content.Context;
 
 import com.ebook.api.config.API;
+import com.ebook.api.http.CustomHttpLoggingInterceptor;
+import com.ebook.api.service.AwaBookService;
 import com.ebook.api.service.BookService;
 import com.ebook.api.service.CommentService;
 import com.ebook.api.service.UserService;
@@ -26,17 +28,16 @@ public class RetrofitManager {
     private OkHttpClient.Builder okHttpBuilder;
 
     private RetrofitManager() {
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         okHttpBuilder = new OkHttpClient.Builder();
-        okHttpBuilder.interceptors().add(logging);
+        okHttpBuilder.addInterceptor(new EncodingInterceptor("GB2312"));
+        okHttpBuilder.addInterceptor(new CustomHttpLoggingInterceptor());
         mRetrofit = new Retrofit.Builder()
                 .client(okHttpBuilder.build())
-                .baseUrl(API.URL_HOST_USER)
+                .baseUrl(API.BASE_URL)
                 //增加返回值为Observable<T>的支持
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 //增加返回值为字符串的支持(以实体类返回)
-                .addConverterFactory(GsonConverterFactory.create())
+//                .addConverterFactory(GsonConverterFactory.create())
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .build();
     }
@@ -57,7 +58,6 @@ public class RetrofitManager {
     }
 
     public UserService getUserService() {
-
         return mRetrofit.create(UserService.class);
     }
 
@@ -65,7 +65,7 @@ public class RetrofitManager {
         return mRetrofit.create(CommentService.class);
     }
 
-    public BookService getBookService() {
-        return mRetrofit.create(BookService.class);
+    public AwaBookService getAwaBookService() {
+        return mRetrofit.create(AwaBookService.class);
     }
 }

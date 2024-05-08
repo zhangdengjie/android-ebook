@@ -1,8 +1,15 @@
 package com.ebook.main
 
+import android.annotation.SuppressLint
+import android.content.DialogInterface
+import android.util.Log
 import android.view.KeyEvent
 import android.view.MenuItem
+import android.view.View
+import android.view.View.OnClickListener
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import com.ebook.api.RetrofitManager
 import com.ebook.common.mvvm.BaseActivity
 import com.ebook.common.provider.IBookProvider
 import com.ebook.common.provider.IFindProvider
@@ -11,6 +18,13 @@ import com.ebook.common.util.ToastUtil
 import com.ebook.main.entity.MainChannel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.therouter.TheRouter
+import com.trello.rxlifecycle3.android.ActivityEvent
+import io.reactivex.Observer
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import org.jetbrains.annotations.Async.Schedule
+import org.jsoup.Jsoup
 
 
 class MainActivity : BaseActivity() {
@@ -56,7 +70,9 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    override fun initData() {}
+    override fun initData() {
+        checkAppUpdate()
+    }
     fun switchContent(from: Fragment?, to: Fragment?, tag: String?) {
         if (from == null || to == null) {
             return
@@ -85,5 +101,46 @@ class MainActivity : BaseActivity() {
             finish()
             System.exit(0)
         }
+    }
+
+    @SuppressLint("CheckResult")
+    private fun checkAppUpdate() {
+        RetrofitManager.getInstance().awaBookService.checkAppUpdate()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .compose(bindUntilEvent(ActivityEvent.DESTROY))
+            .subscribe(object : Observer<String>{
+                override fun onSubscribe(d: Disposable) {
+                }
+
+                override fun onError(e: Throwable) {
+                    Log.e(TAG, "onError: 检测更新报错", e)
+                }
+
+                override fun onComplete() {
+                }
+
+                override fun onNext(t: String) {
+                    // 解析html
+                    val doc = Jsoup.parse(t)
+                    val version = doc.getElementsByTag("version")[0].text()
+                    val info = doc.getElementsByTag("info")[0].text()
+                    val d = AlertDialog.Builder(this@MainActivity)
+                        .setTitle("APP有新版本")
+                        .setMessage(info)
+                        .setNegativeButton("取消",object : DialogInterface.OnClickListener {
+                            override fun onClick(dialog: DialogInterface?, which: Int) {
+                                dialog?.dismiss()
+                            }
+                        })
+                        .setPositiveButton("更新",object : DialogInterface.OnClickListener {
+                            override fun onClick(dialog: DialogInterface?, which: Int) {
+                                Log.i(TAG, "onClick: 去下载新版本的包,并且安装")
+                            }
+                        })
+                        .create()
+                    d.show()
+                }
+            })
     }
 }

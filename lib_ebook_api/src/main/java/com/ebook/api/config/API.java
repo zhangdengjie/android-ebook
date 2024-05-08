@@ -1,6 +1,8 @@
 package com.ebook.api.config;
 
 
+import com.ebook.api.service.AwaBookService;
+
 public interface API {
     //安卓模拟器访问localhost
 //    String URL_HOST_USER = "http://10.0.2.2:5000/userapi/";
@@ -11,4 +13,5 @@ public interface API {
     //腾讯云服务器
     String URL_HOST_USER = "http://175.24.63.162:5000/userapi/";
     String URL_HOST_COMMENT = "http://175.24.63.162:5000/commentapi/";
+    String BASE_URL = AwaBookService.URL;
 }
