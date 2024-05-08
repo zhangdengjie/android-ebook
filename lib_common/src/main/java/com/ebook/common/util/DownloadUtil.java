@@ -10,6 +10,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.core.content.FileProvider;
+
+import com.ebook.common.BuildConfig;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -99,7 +103,7 @@ public class DownloadUtil {
             md5Three = md5Three.toLowerCase();
             if (md5Three.equals(fileMD5.toLowerCase())) {
                 Log.i(TAG, "检测到已下载了文件，不用重复下载");
-                installApk(mContext,Uri.fromFile(new File(pathstr)));
+                installApk(mContext,FileProvider.getUriForFile(mContext, BuildConfig.LIBRARY_PACKAGE_NAME, file));
                 if (onDownloadCallback != null) {
                     onDownloadCallback.onDownloadSuccessful();
                 }
@@ -156,7 +160,7 @@ public class DownloadUtil {
                             md5Three = md5Three.toLowerCase();
                             if (md5Three.equals(fileMD5.toLowerCase())) {
                                 Log.i(TAG, "checkStatus: 文件下载完成");
-                                installApk(mContext,Uri.fromFile(new File(pathstr)));
+                                installApk(mContext,FileProvider.getUriForFile(mContext, BuildConfig.LIBRARY_PACKAGE_NAME, mDstFile));
                                 if (onDownloadCallback != null) {
                                     onDownloadCallback.onDownloadSuccessful();
                                 }
