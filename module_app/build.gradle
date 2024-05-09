@@ -11,7 +11,8 @@ android {
         minSdk 26
         targetSdk 34
         compileSdk 34
-        versionCode 4
+        versionCode Integer.parseInt(new Date().format("yyyyMMddHH"))
+//        versionCode 4
         versionName '1.1.5'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -32,6 +33,17 @@ android {
     namespace 'com.xixi.book'
     kotlinOptions {
         jvmTarget = '17'
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            // 非拆分包
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                def fileName = "v${output.versionCode}.apk"
+                outputFileName = fileName
+            }
+        }
     }
 }
 
