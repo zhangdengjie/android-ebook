@@ -365,31 +365,35 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
                     // TODO: 2024/5/4 解析有没有更多 通过kindUrl是否为空来判断是否显示
 //                    bookList.setKindUrl("");
                     bookList.setKindName(kindName);
-                    // 添加第一部小说,包含封面作者简介等信息
-                    SearchBook book = new SearchBook();
-                    book.setTag(TAG);
-                    Element bookInfo = element.getElementsByClass("book_info").get(0);
-                    book.setCoverUrl(bookInfo.child(0).child(0).child(0).attr("src"));
-                    book.setNoteUrl(bookInfo.child(1).child(0).attr("href"));
-                    book.setAuthor(bookInfo.child(1).child(1).child(1).child(1).text());
-                    book.setDesc(bookInfo.child(1).child(1).child(2).text());
-                    book.setKind(kindName);
-                    book.setOrigin(AwaBookService.URL);
-                    book.setName(bookInfo.child(1).child(1).child(0).child(0).text());
-                    bookList.getBooks().add(book);
 
-                    // 解析列表 作者 + 小说名称 + url
-                    Element toplist = element.getElementsByClass("list").get(0);
-                    for (Element child : toplist.children()) {
-                        SearchBook b = new SearchBook();
-                        b.setOrigin(AwaBookService.URL);
-                        b.setKind(kindName);
-                        b.setName(child.child(0).attr("title"));
-                        b.setNoteUrl(child.child(0).attr("href"));
-                        b.setAuthor(child.child(0).text().split(" ")[0]);
-                        b.setTag(TAG);
-                        bookList.getBooks().add(b);
+                    Elements bookInfos = element.getElementsByClass("book_info");
+                    for (Element bookInfo : bookInfos) {
+                        // 添加第一部小说,包含封面作者简介等信息
+                        SearchBook book = new SearchBook();
+                        book.setTag(TAG);
+                        book.setCoverUrl(bookInfo.child(0).child(0).child(0).attr("src"));
+                        book.setNoteUrl(bookInfo.child(1).child(0).attr("href"));
+                        book.setAuthor(bookInfo.child(1).child(1).child(1).child(1).text());
+                        book.setDesc(bookInfo.child(1).child(1).child(2).text());
+                        book.setKind(kindName);
+                        book.setOrigin(AwaBookService.URL);
+                        book.setName(bookInfo.child(1).child(1).child(0).child(0).text());
+                        bookList.getBooks().add(book);
                     }
+//
+//
+//                    // 解析列表 作者 + 小说名称 + url
+//                    Element toplist = element.getElementsByClass("list").get(0);
+//                    for (Element child : toplist.children()) {
+//                        SearchBook b = new SearchBook();
+//                        b.setOrigin(AwaBookService.URL);
+//                        b.setKind(kindName);
+//                        b.setName(child.child(0).attr("title"));
+//                        b.setNoteUrl(child.child(0).attr("href"));
+//                        b.setAuthor(child.child(0).text().split(" ")[0]);
+//                        b.setTag(TAG);
+//                        bookList.getBooks().add(b);
+//                    }
 
                     // 只显示3个书籍
                     bookList.setBooks(bookList.getBooks().subList(0, 3));

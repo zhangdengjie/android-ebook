@@ -146,7 +146,7 @@ public class BookDetailActivity extends BaseActivity<IBookDetailPresenter> imple
                 tvLoading.startAnimation(animHideLoading);
             }
             if (bookShelf.getBookInfo().getOrigin() != null && bookShelf.getBookInfo().getOrigin().length() > 0) {
-                tvOrigin.setVisibility(View.VISIBLE);
+                // tvOrigin.setVisibility(View.VISIBLE);
                 tvOrigin.setText("来源:" + bookShelf.getBookInfo().getOrigin());
             } else {
                 tvOrigin.setVisibility(View.GONE);
@@ -190,7 +190,7 @@ public class BookDetailActivity extends BaseActivity<IBookDetailPresenter> imple
             name = mPresenter.getBookShelf().getBookInfo().getName();
             author = mPresenter.getBookShelf().getBookInfo().getAuthor();
             if (mPresenter.getBookShelf().getBookInfo().getOrigin() != null && mPresenter.getBookShelf().getBookInfo().getOrigin().length() > 0) {
-                tvOrigin.setVisibility(View.VISIBLE);
+                // tvOrigin.setVisibility(View.VISIBLE);
                 tvOrigin.setText("来源:" + mPresenter.getBookShelf().getBookInfo().getOrigin());
             } else {
                 tvOrigin.setVisibility(View.GONE);
@@ -200,7 +200,7 @@ public class BookDetailActivity extends BaseActivity<IBookDetailPresenter> imple
             name = mPresenter.getSearchBook().getName();
             author = mPresenter.getSearchBook().getAuthor();
             if (mPresenter.getSearchBook().getOrigin() != null && mPresenter.getSearchBook().getOrigin().length() > 0) {
-                tvOrigin.setVisibility(View.VISIBLE);
+                // tvOrigin.setVisibility(View.VISIBLE);
                 tvOrigin.setText("来源:" + mPresenter.getSearchBook().getOrigin());
             } else {
                 tvOrigin.setVisibility(View.GONE);
