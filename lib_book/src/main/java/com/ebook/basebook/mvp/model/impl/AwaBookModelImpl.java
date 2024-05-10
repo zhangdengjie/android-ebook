@@ -394,10 +394,6 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
 //                        b.setTag(TAG);
 //                        bookList.getBooks().add(b);
 //                    }
-
-                    // 只显示3个书籍
-                    bookList.setBooks(bookList.getBooks().subList(0, 3));
-
                 }
                 emitter.onNext(result);
                 emitter.onComplete();
