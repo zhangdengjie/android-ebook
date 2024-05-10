@@ -11,7 +11,7 @@ android {
         minSdk 26
         targetSdk 34
         compileSdk 34
-        versionCode Integer.parseInt(new Date().format("yyyyMMddHH"))
+        versionCode Integer.parseInt(new Date().format("yyyyMMddHHmm"))
 //        versionCode 4
         versionName '1.1.5'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
