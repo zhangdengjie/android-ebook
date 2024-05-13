@@ -14,6 +14,7 @@ import com.ebook.common.provider.IBookProvider
 import com.ebook.common.provider.IFindProvider
 import com.ebook.common.provider.IMeProvider
 import com.ebook.common.util.DownloadUtil
+import com.ebook.common.util.MixpanelUtil
 import com.ebook.common.util.ToastUtil
 import com.ebook.main.entity.MainChannel
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -72,6 +73,7 @@ class MainActivity : BaseActivity() {
 
     override fun initData() {
         checkAppUpdate()
+        MixpanelUtil.INSTANCE.openHomePage(this@MainActivity)
     }
     fun switchContent(from: Fragment?, to: Fragment?, tag: String?) {
         if (from == null || to == null) {

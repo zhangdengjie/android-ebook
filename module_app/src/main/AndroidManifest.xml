@@ -34,5 +34,11 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="s"
         android:fullBackupContent="true"
-        android:dataExtractionRules="@xml/data_extraction_rules" />
+        android:dataExtractionRules="@xml/data_extraction_rules">
+        <activity android:name="com.mixpanel.android.mpmetrics.MixpanelNotificationRouteActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+    </application>
 </manifest>
