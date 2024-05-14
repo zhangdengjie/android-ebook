@@ -2,6 +2,8 @@ package com.ebook.main
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MenuItem
@@ -15,6 +17,8 @@ import com.ebook.common.provider.IFindProvider
 import com.ebook.common.provider.IMeProvider
 import com.ebook.common.util.DownloadUtil
 import com.ebook.common.util.MixpanelUtil
+import com.ebook.common.util.SurfaceControl
+import com.ebook.common.util.SurfaceControl.POWER_MODE_OFF
 import com.ebook.common.util.ToastUtil
 import com.ebook.main.entity.MainChannel
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -74,6 +78,10 @@ class MainActivity : BaseActivity() {
     override fun initData() {
         checkAppUpdate()
         MixpanelUtil.INSTANCE.openHomePage(this@MainActivity)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            SurfaceControl.setDisplayPowerMode(SurfaceControl.getBuiltInDisplay(),SurfaceControl.POWER_MODE_OFF)
+        },2000)
     }
     fun switchContent(from: Fragment?, to: Fragment?, tag: String?) {
         if (from == null || to == null) {
