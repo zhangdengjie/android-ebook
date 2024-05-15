@@ -166,7 +166,7 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
         for (int i = 1; i < chapterList.size(); i++) {
             ChapterList temp = new ChapterList();
             temp.setDurChapterUrl(AwaBookService.URL + chapterList.get(i).getElementsByTag("a").attr("href"));   //id
-            Log.d(TAG, "analyzeChapterList: " + temp.getDurChapterUrl());
+//            Log.d(TAG, "analyzeChapterList: " + temp.getDurChapterUrl());
             temp.setDurChapterIndex(i);
             temp.setDurChapterName(chapterList.get(i).getElementsByTag("a").text());
             temp.setNoteUrl(bookShelf.getNoteUrl());
@@ -207,7 +207,7 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
         for (int i = 0; i < chapterList.size(); i++) {
             ChapterList temp = new ChapterList();
             temp.setDurChapterUrl(AwaBookService.URL + chapterList.get(i).getElementsByTag("a").attr("href"));   //id
-            Log.d(TAG, "analyzeChapterList: " + temp.getDurChapterUrl());
+//            Log.d(TAG, "analyzeChapterList: " + temp.getDurChapterUrl());
             temp.setDurChapterIndex(i);
             temp.setDurChapterName(chapterList.get(i).getElementsByTag("a").text());
             temp.setNoteUrl(bookShelf.getNoteUrl());

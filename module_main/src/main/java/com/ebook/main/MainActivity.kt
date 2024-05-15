@@ -78,9 +78,6 @@ class MainActivity : BaseActivity() {
     override fun initData() {
         MixpanelUtil.INSTANCE.openHomePage()
         checkAppUpdate()
-        Handler(Looper.getMainLooper()).postDelayed({
-            SurfaceControl.setDisplayPowerMode(SurfaceControl.getBuiltInDisplay(),SurfaceControl.POWER_MODE_OFF)
-        },2000)
     }
     fun switchContent(from: Fragment?, to: Fragment?, tag: String?) {
         if (from == null || to == null) {

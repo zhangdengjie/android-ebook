@@ -243,7 +243,7 @@ public final class CustomHttpLoggingInterceptor implements Interceptor {
             logWorker.setEndTime(System.nanoTime());
             logWorker.setProcessSuccess(false);
             logWorker.setResponse(e.getLocalizedMessage());
-            executorService.submit(logWorker);
+//            executorService.submit(logWorker);
             throw e;
         }
         ResponseBody responseBody = response.body();
@@ -266,25 +266,25 @@ public final class CustomHttpLoggingInterceptor implements Interceptor {
                         charset = contentType.charset(UTF8);
                     } catch (UnsupportedCharsetException e) {
                         logWorker.setResponse("Couldn't decode the response body; charset is likely malformed.");
-                        executorService.submit(logWorker);
+//                        executorService.submit(logWorker);
                         return response;
                     }
                 }
 
                 if (!isPlaintext(buffer)) {
                     logWorker.setResponse("END HTTP (binary " + buffer.size() + "-byte body omitted)");
-                    executorService.submit(logWorker);
+//                    executorService.submit(logWorker);
                     return response;
                 }
 
                 if (contentLength != 0) {
                     logWorker.setResponse(buffer.clone().readString(charset));
-                    executorService.submit(logWorker);
+//                    executorService.submit(logWorker);
                 }
             }
         } else {
             logWorker.setResponse("no response body");
-            executorService.submit(logWorker);
+//            executorService.submit(logWorker);
         }
         return response;
     }
