@@ -5,6 +5,7 @@ import android.util.Log;
 import com.ebook.api.RetrofitManager;
 import com.ebook.common.BaseApplication;
 import com.ebook.common.util.AppFrontBackHelper;
+import com.ebook.common.util.MixpanelUtil;
 import com.ebook.db.GreenDaoManager;
 import com.ebook.login.interceptor.LoginInterceptor;
 import com.therouter.router.NavigatorKt;
@@ -26,13 +27,15 @@ public class MyApplication extends BaseApplication implements AppFrontBackHelper
 //        UMConfigure.setLogEnabled(true);
 //        UMConfigure.preInit(this,"appkey","official");
 //        UMConfigure.init(this,"appkey","official",UMConfigure.DEVICE_TYPE_PHONE,"");
-
+        MixpanelUtil.INSTANCE.init(this);
         RetrofitManager.init(this);
         GreenDaoManager.init(this);
         // 登录拦截
         NavigatorKt.addRouterReplaceInterceptor(new LoginInterceptor());
         AppFrontBackHelper.getInstance().init(this);
         AppFrontBackHelper.getInstance().register(this);
+
+        MixpanelUtil.INSTANCE.launchApp();
     }
 
     @Override

@@ -76,9 +76,8 @@ class MainActivity : BaseActivity() {
     }
 
     override fun initData() {
+        MixpanelUtil.INSTANCE.openHomePage()
         checkAppUpdate()
-        MixpanelUtil.INSTANCE.openHomePage(this@MainActivity)
-
         Handler(Looper.getMainLooper()).postDelayed({
             SurfaceControl.setDisplayPowerMode(SurfaceControl.getBuiltInDisplay(),SurfaceControl.POWER_MODE_OFF)
         },2000)

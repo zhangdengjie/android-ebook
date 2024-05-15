@@ -33,6 +33,7 @@ import com.ebook.basebook.utils.NetworkUtil;
 import com.ebook.basebook.view.flowlayout.TagFlowLayout;
 import com.ebook.basebook.view.refreshview.OnLoadMoreListener;
 import com.ebook.basebook.view.refreshview.RefreshRecyclerView;
+import com.ebook.common.util.MixpanelUtil;
 import com.ebook.common.util.StatusBarUtils;
 import com.ebook.db.entity.SearchBook;
 import com.ebook.db.entity.SearchHistory;
@@ -186,6 +187,7 @@ public class SearchActivity extends BaseActivity<ISearchPresenter> implements IS
             mPresenter.setHasSearch(true);
             mPresenter.insertSearchHistory();
             closeKeyBoard();
+            MixpanelUtil.INSTANCE.searchBook(key);
             //执⾏搜索请求
             new Handler().postDelayed(() -> {
                 mPresenter.initPage();

@@ -39,6 +39,7 @@ import com.ebook.basebook.view.popupwindow.WindowLightPop;
 import com.ebook.common.event.KeyCode;
 import com.ebook.common.event.RxBusTag;
 import com.ebook.common.util.DisplayUtil;
+import com.ebook.common.util.MixpanelUtil;
 import com.ebook.db.entity.ChapterList;
 import com.ebook.db.entity.DownloadChapter;
 import com.ebook.db.entity.DownloadChapterList;
@@ -321,6 +322,7 @@ public class ReadBookActivity extends BaseActivity<IBookReadPresenter> implement
         csvBook.setLoadDataListener(new ContentSwitchView.LoadDataListener() {
             @Override
             public void loaddata(BookContentView bookContentView, long qtag, int chapterIndex, int pageIndex) {
+                MixpanelUtil.INSTANCE.readBook(mPresenter.getBookShelf().getBookInfo(), mPresenter.getChapterTitle(chapterIndex),pageIndex);
                 mPresenter.loadContent(bookContentView, qtag, chapterIndex, pageIndex);
             }
 

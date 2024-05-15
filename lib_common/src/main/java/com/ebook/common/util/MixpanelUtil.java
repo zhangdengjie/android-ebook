@@ -1,8 +1,11 @@
 package com.ebook.common.util;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.blankj.utilcode.util.ThreadUtils;
+import com.ebook.db.entity.BookInfo;
+import com.ebook.db.entity.SearchBook;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
 import org.json.JSONException;
@@ -14,35 +17,81 @@ public enum MixpanelUtil {
 
     INSTANCE;
 
-    public void openHomePage(Context context) throws JSONException, IOException {
-        ThreadUtils.executeByCached(new ThreadUtils.SimpleTask<Void>() {
+    private static final String TAG = "MixpanelUtil";
+
+    private MixpanelAPI mixpanel;
+
+    private String identifyId;
+
+    public void init(Context context) {
+        identifyId = DeviceIdUtil.getDeviceId(context);
+        mixpanel = MixpanelAPI.getInstance(context, "855fd1c7c98dbb63031df025b2ac0852", true);
+        mixpanel.setEnableLogging(true);
+        mixpanel.identify(identifyId, false);
+    }
+
+    public void openHomePage() throws JSONException, IOException {
+        ThreadUtil.executeTask(new Runnable() {
             @Override
-            public Void doInBackground() throws Throwable {
-                // Set up an instance of MixpanelAPI
-                MixpanelAPI mp =
-                        MixpanelAPI.getInstance(context, "c9378eb7b429a0938cfce7e4dd2173f5", true);
-                mp.setEnableLogging(true);
-                // The second param is a flag for allowing profile updates
-                mp.identify("demo_123", true);
-
-                // Identify must be called before properties are set
-                mp.getPeople().set("$name", "xixi");
-                mp.getPeople().set("$email", "xixi_gmail@example.com");
-                mp.getPeople().set("plan", "Premium");
-
-                mp.track("demo");
-
-                JSONObject props = new JSONObject();
-                props.put("Signup Type", "Referral");
-                mp.track("Signed Up", props);
-                return null;
-            }
-
-            @Override
-            public void onSuccess(Void result) {
-
+            public void run() {
+                mixpanel.track("打开首页");
             }
         });
+    }
 
+    public void launchApp() {
+        ThreadUtil.executeTask(new Runnable() {
+            @Override
+            public void run() {
+                mixpanel.track("启动应用");
+            }
+        });
+    }
+
+    public void retriveBook(SearchBook bookInfo) {
+        ThreadUtil.executeTask(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("name", bookInfo.getName());
+                } catch (JSONException e) {
+                    Log.e(TAG, "埋点报错", e);
+                }
+                mixpanel.track("查看小说概览",jsonObject);
+            }
+        });
+    }
+
+    public void searchBook(String words) {
+        ThreadUtil.executeTask(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("words", words);
+                } catch (JSONException e) {
+                    Log.e(TAG, "埋点报错", e);
+                }
+                mixpanel.track("搜索小说",jsonObject);
+            }
+        });
+    }
+
+    public void readBook(BookInfo bookInfo,String chapterTitle,int page) {
+        ThreadUtil.executeTask(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("name", bookInfo.getName());
+                    jsonObject.put("chapterTitle", chapterTitle);
+                    jsonObject.put("pageIndex", page);
+                } catch (JSONException e) {
+                    Log.e(TAG, "埋点报错", e);
+                }
+                mixpanel.track("阅读小说",jsonObject);
+            }
+        });
     }
 }

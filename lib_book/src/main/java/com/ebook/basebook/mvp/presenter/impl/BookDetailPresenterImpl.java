@@ -16,6 +16,7 @@ import com.ebook.basebook.mvp.view.IBookDetailView;
 import com.ebook.basebook.observer.SimpleObserver;
 import com.ebook.common.BaseApplication;
 import com.ebook.common.event.RxBusTag;
+import com.ebook.common.util.MixpanelUtil;
 import com.ebook.db.GreenDaoManager;
 import com.ebook.db.entity.BookShelf;
 import com.ebook.db.entity.SearchBook;
@@ -60,6 +61,7 @@ public class BookDetailPresenterImpl extends BasePresenterImpl<IBookDetailView> 
             searchBook = intent.getParcelableExtra("data");
             inBookShelf = searchBook.getAdd();
         }
+        MixpanelUtil.INSTANCE.retriveBook(searchBook);
     }
 
     public Boolean getInBookShelf() {
