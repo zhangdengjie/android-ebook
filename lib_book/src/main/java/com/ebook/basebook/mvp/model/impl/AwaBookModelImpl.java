@@ -13,6 +13,7 @@ import com.ebook.basebook.base.impl.MBaseModelImpl;
 import com.ebook.basebook.base.manager.ErrorAnalyContentManager;
 import com.ebook.basebook.cache.ACache;
 import com.ebook.basebook.mvp.model.StationBookModel;
+import com.ebook.common.BaseApplication;
 import com.ebook.db.entity.BookContent;
 import com.ebook.db.entity.BookInfo;
 import com.ebook.db.entity.BookShelf;
@@ -104,7 +105,7 @@ public class AwaBookModelImpl extends MBaseModelImpl implements StationBookModel
     public Observable<WebChapter<BookShelf>> getChapterList(BookShelf bookShelf) {
         String noteUrl = bookShelf.getNoteUrl();
         String aid = noteUrl.split("_")[1];
-        String chapterListUrl = "http://www.ttawa.com/list.php?aid=" + aid.substring(0,aid.length() - 1);
+        String chapterListUrl = BaseApplication.getInstance().getBaseUrl() + "/list.php?aid=" + aid.substring(0,aid.length() - 1);
         return getRetrofitObject(AwaBookService.URL)
                 .create(AwaBookService.class)
                 .getChapterList(chapterListUrl.replace(AwaBookService.URL, ""))

@@ -1,5 +1,7 @@
 package com.ebook.api.service;
 
+import com.ebook.api.config.API;
+
 import io.reactivex.Observable;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
@@ -7,7 +9,7 @@ import retrofit2.http.Query;
 import retrofit2.http.Url;
 
 public interface AwaBookService {
-    String URL = "http://www.ttawa.com";
+    String URL = API.BASE_URL;
 //    String COVER_URL = "http://www.sundung.com";
 //    String SEARCH_URL = "http://sou.bbzayy.com";
 

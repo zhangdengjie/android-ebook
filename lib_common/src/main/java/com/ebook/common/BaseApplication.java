@@ -1,9 +1,11 @@
 package com.ebook.common;
 
 import android.app.Application;
+import android.text.TextUtils;
 
 import com.ebook.common.util.log.KLog;
 import com.facebook.stetho.Stetho;
+import com.xixi.security.NativeLib;
 
 public class BaseApplication extends Application {
     private static BaseApplication mApplication;
@@ -18,5 +20,13 @@ public class BaseApplication extends Application {
         mApplication = this;
         KLog.init(BuildConfig.IS_DEBUG);
         Stetho.initializeWithDefaults(this);
+    }
+
+    private String baseUrl;
+    public synchronized String getBaseUrl() {
+        if (TextUtils.isEmpty(baseUrl)) {
+            baseUrl = new NativeLib().baseUrl();
+        }
+        return baseUrl;
     }
 }

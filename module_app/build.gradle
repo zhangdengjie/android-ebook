@@ -59,7 +59,6 @@ dependencies {
         implementation project(':module_book')
         implementation project(":module_login")
     }
-
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

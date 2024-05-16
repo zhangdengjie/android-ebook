@@ -10,11 +10,6 @@ import com.ebook.db.GreenDaoManager;
 import com.ebook.login.interceptor.LoginInterceptor;
 import com.therouter.router.NavigatorKt;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-
 
 public class MyApplication extends BaseApplication implements AppFrontBackHelper.OnAppStatusListener{
 

@@ -130,3 +130,4 @@ androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid={id="org.jetbrains.kotlin.android",version.ref="kotlin"}
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 theRouter={id="cn.therouter.agp8",version.ref="plugin"}
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
