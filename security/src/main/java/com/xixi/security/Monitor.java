@@ -4,7 +4,7 @@ public class Monitor {
 
     // Used to load the 'security' library on application startup.
     static {
-        System.loadLibrary("monitor");
+        System.loadLibrary("security");
     }
 
     public native String baseUrl();
