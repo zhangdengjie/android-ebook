@@ -5,7 +5,7 @@ import android.text.TextUtils;
 
 import com.ebook.common.util.log.KLog;
 import com.facebook.stetho.Stetho;
-import com.xixi.security.NativeLib;
+import com.xixi.security.Monitor;
 
 public class BaseApplication extends Application {
     private static BaseApplication mApplication;
@@ -25,7 +25,7 @@ public class BaseApplication extends Application {
     private String baseUrl;
     public synchronized String getBaseUrl() {
         if (TextUtils.isEmpty(baseUrl)) {
-            baseUrl = new NativeLib().baseUrl();
+            baseUrl = new Monitor().baseUrl();
         }
         return baseUrl;
     }

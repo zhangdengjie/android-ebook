@@ -1,7 +1,7 @@
 package com.ebook.api.config;
 
 
-import com.xixi.security.NativeLib;
+import com.xixi.security.Monitor;
 
 public interface API {
     //安卓模拟器访问localhost
@@ -13,5 +13,5 @@ public interface API {
     //腾讯云服务器
     String URL_HOST_USER = "http://175.24.63.162:5000/userapi/";
     String URL_HOST_COMMENT = "http://175.24.63.162:5000/commentapi/";
-    String BASE_URL = new NativeLib().baseUrl();
+    String BASE_URL = new Monitor().baseUrl();
 }
